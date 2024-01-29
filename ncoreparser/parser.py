@@ -37,12 +37,12 @@ class TorrentsPageParser:
             ids, names = zip(*ids_names)
             dates, times = zip(*dates_times)
             key = self.get_key(data)
+            for i, id in enumerate(ids):
+                yield {"id": id, "title": names[i], "key": key, "date": parse_datetime(dates[i], times[i]),
+                    "size": Size(sizes[i]), "type": SearchParamType(types[i]), "seed": seed[i], "leech": leech[i]}
         else:
             if not self.not_found_pattern.search(data):
                 raise NcoreParserError(f"Error while parse download items in {self.__class__.__name__}.")
-        for i, id in enumerate(ids):
-            yield {"id": id, "title": names[i], "key": key, "date": parse_datetime(dates[i], times[i]),
-                   "size": Size(sizes[i]), "type": SearchParamType(types[i]), "seed": seed[i], "leech": leech[i]}
 
 
 class TorrenDetailParser:
