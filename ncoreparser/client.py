@@ -64,10 +64,9 @@ class Client:
     @_check_login
     # pylint: disable=too-many-arguments
     def search(self, pattern, type=SearchParamType.ALL_OWN, where=SearchParamWhere.NAME,
-               sort_by=ParamSort.UPLOAD, sort_order=ParamSeq.DECREASING, pages=1) -> list[Torrent]:
-        page_count = 1
+               sort_by=ParamSort.UPLOAD, sort_order=ParamSeq.DECREASING, page_start=1, page_end=1) -> list[Torrent]:
         torrents = []
-        while (page_count <= pages):
+        for page_count in range(page_start, page_end + 1):
             url = URLs.DOWNLOAD_PATTERN.value.format(page=page_count,
                                                      t_type=type.value,
                                                      sort=sort_by.value,
@@ -80,7 +79,6 @@ class Client:
                 raise NcoreConnectionError(f"Error while searhing torrents. {e}") from e
             new_torrents = [Torrent(**params) for params in self._page_parser.get_items(request.text)]
             torrents.extend(new_torrents)
-            page_count += 1
         return torrents
 
     @_check_login
