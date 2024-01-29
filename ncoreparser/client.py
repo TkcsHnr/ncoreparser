@@ -64,7 +64,7 @@ class Client:
     @_check_login
     # pylint: disable=too-many-arguments
     def search(self, pattern, type=SearchParamType.ALL_OWN, where=SearchParamWhere.NAME,
-               sort_by=ParamSort.UPLOAD, sort_order=ParamSeq.DECREASING, pages=1):
+               sort_by=ParamSort.UPLOAD, sort_order=ParamSeq.DECREASING, pages=1) -> list[Torrent]:
         page_count = 1
         torrents = []
         while (page_count <= pages):
