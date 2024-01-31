@@ -4,7 +4,6 @@ import os
 import functools
 import httpx
 from ncoreparser.data import (
-    SearchResults,
     URLs,
     SearchParamType,
     SearchParamWhere,
@@ -23,7 +22,10 @@ from ncoreparser.parser import (
     ActivityParser,
     RecommendedParser
 )
-from ncoreparser.util import Size
+from ncoreparser.util import (
+    Size,
+    SearchResults
+)
 from ncoreparser.torrent import Torrent
 
 

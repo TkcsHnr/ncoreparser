@@ -5,7 +5,11 @@ from .data import (
     SearchParamType,
     SearchParamWhere,
     ParamSeq,
-    ParamSort
+    ParamSort,
+    SearchResults
+)
+from .torrent import (
+    Torrent
 )
 from .error import (
     NcoreDownloadError,

@@ -1,13 +1,5 @@
 from enum import Enum
 from ncoreparser.error import NcoreParserError
-from dataclasses import dataclass
-from ncoreparser.torrent import Torrent
-
-
-@dataclass
-class SearchResults:
-    torrents: list[Torrent]
-    page_count: int
 
 
 class ParamSort(Enum):
