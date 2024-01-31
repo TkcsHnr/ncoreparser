@@ -15,6 +15,8 @@ class TorrentsPageParser:
         self.not_found_pattern = re.compile(r'<div class="lista_mini_error">Nincs találat!</div>')
         self.seeders_pattern = re.compile(r'<div class="box_s2"><a class="torrent" href=".*">([0-9]+)</a></div>')
         self.leechers_pattern = re.compile(r'<div class="box_l2"><a class="torrent" href=".*">([0-9]+)</a></div>')
+        self.first_page_pattern = re.compile(r"<span class='active_link'><strong>.*?</strong></span>")
+        self.page_links_pattern = re.compile( r"<a .*?href='/torrents\.php\?oldal=(\d+).*?'>.*?</a>")
 
     @staticmethod
     def get_key(data):
@@ -43,6 +45,12 @@ class TorrentsPageParser:
         else:
             if not self.not_found_pattern.search(data):
                 raise NcoreParserError(f"Error while parse download items in {self.__class__.__name__}.")
+            
+    def get_pages(self, data) -> int:
+        first_page = self.first_page_pattern.search(data)
+        page_links = self.page_links_pattern.findall(data)
+            
+        return int(page_links[-1]) if page_links else 1 if first_page else 0
 
 
 class TorrenDetailParser:
