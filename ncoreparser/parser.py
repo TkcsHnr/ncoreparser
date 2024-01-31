@@ -15,6 +15,7 @@ class TorrentsPageParser:
         self.not_found_pattern = re.compile(r'<div class="lista_mini_error">Nincs találat!</div>')
         self.seeders_pattern = re.compile(r'<div class="box_s2"><a class="torrent" href=".*">([0-9]+)</a></div>')
         self.leechers_pattern = re.compile(r'<div class="box_l2"><a class="torrent" href=".*">([0-9]+)</a></div>')
+        self.max_pages_pattern = re.compile(r'<div id="pager_top"><a href=".*\/torrents\.php\?oldal=(.*?).*?"><strong>Utolsó</strong></a></div>')
 
     @staticmethod
     def get_key(data):
@@ -24,6 +25,14 @@ class TorrentsPageParser:
             return find.group("key")
         raise NcoreParserError(f"Error while read user "
                                f"key with pattern: {key_pattern}")
+
+    def get_max_pages(self, data):
+        max_pages = self.max_pages_pattern.findall(data)
+        if len(max_pages) == 0:
+            return 1
+        
+        return max_pages[0]        
+        
 
     def get_items(self, data):
         types = self.type_pattern.findall(data)
