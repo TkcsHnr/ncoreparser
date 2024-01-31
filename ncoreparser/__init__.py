@@ -13,7 +13,5 @@ from .error import (
     NcoreCredentialError,
     NcoreConnectionError
 )
-from .util import (
-    Size,
-    SearchResults
-)
+from .util import Size
+from .types import SearchResults

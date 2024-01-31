@@ -20,17 +20,15 @@ from ncoreparser.parser import (
     ActivityParser,
     RecommendedParser
 )
-from ncoreparser.util import (
-    Size,
-    SearchResults
-)
+from ncoreparser.util import Size
 from ncoreparser.torrent import Torrent
+from ncoreparser.types import SearchResults
 
 
 def _check_login(func):
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
-        if not self._logged_in: # pylint: disable=protected-access
+        if not self._logged_in:  # pylint: disable=protected-access
             raise NcoreConnectionError("Cannot login to tracker. "
                                        f"Please use {Client.login.__name__} function first.")
         return func(self, *args, **kwargs)
@@ -48,7 +46,6 @@ class Client:
         self._rss_parser = RssParser()
         self._activity_parser = ActivityParser()
         self._recommended_parser = RecommendedParser()
-
 
     def login(self, username, password):
         self._client.cookies.clear()
@@ -79,10 +76,12 @@ class Client:
             try:
                 request = self._client.get(url)
             except Exception as e:
-                raise NcoreConnectionError(f"Error while searhing torrents. {e}") from e
-            new_torrents = [Torrent(**params) for params in self._page_parser.get_items(request.text)]
+                raise NcoreConnectionError(
+                    f"Error while searhing torrents. {e}") from e
+            new_torrents = [
+                Torrent(**params) for params in self._page_parser.get_items(request.text)]
             torrents.extend(new_torrents)
-            
+
         pages = self._page_parser.get_pages(request.text)
         return SearchResults(torrents, pages)
 
@@ -92,7 +91,8 @@ class Client:
         try:
             content = self._client.get(url)
         except Exception as e:
-            raise NcoreConnectionError(f"Error while get detailed page. Url: '{url}'. {e}") from e
+            raise NcoreConnectionError(
+                f"Error while get detailed page. Url: '{url}'. {e}") from e
         params = self._detailed_parser.get_item(content.text)
         params["id"] = id
         params.update(ext_params)
@@ -103,7 +103,8 @@ class Client:
         try:
             content = self._client.get(url)
         except Exception as e:
-            raise NcoreConnectionError(f"Error while get rss. Url: '{url}'. {e}") from e
+            raise NcoreConnectionError(
+                f"Error while get rss. Url: '{url}'. {e}") from e
 
         torrents = []
         for id in self._rss_parser.get_ids(content.text):
@@ -115,7 +116,8 @@ class Client:
         try:
             content = self._client.get(URLs.ACTIVITY.value)
         except Exception as e:
-            raise NcoreConnectionError(f"Error while get activity. Url: '{URLs.ACTIVITY.value}'. {e}") from e
+            raise NcoreConnectionError(
+                f"Error while get activity. Url: '{URLs.ACTIVITY.value}'. {e}") from e
 
         torrents = []
         for id, start_t, updated_t, status, uploaded, downloaded, remaining_t, rate in \
@@ -135,9 +137,11 @@ class Client:
         try:
             content = self._client.get(URLs.RECOMMENDED.value)
         except Exception as e:
-            raise NcoreConnectionError(f"Error while get recommended. Url: '{URLs.RECOMMENDED.value}'. {e}") from e
+            raise NcoreConnectionError(
+                f"Error while get recommended. Url: '{URLs.RECOMMENDED.value}'. {e}") from e
 
-        all_recommended = [self.get_torrent(id) for id in self._recommended_parser.get_ids(content.text)]
+        all_recommended = [self.get_torrent(
+            id) for id in self._recommended_parser.get_ids(content.text)]
         return [torrent for torrent in all_recommended if not type or torrent['type'] == type]
 
     @_check_login
@@ -146,9 +150,11 @@ class Client:
         try:
             content = self._client.get(url)
         except Exception as e:
-            raise NcoreConnectionError(f"Error while downloading torrent. Url: '{url}'. {e}") from e
+            raise NcoreConnectionError(
+                f"Error while downloading torrent. Url: '{url}'. {e}") from e
         if not override and os.path.exists(file_path):
-            raise NcoreDownloadError(f"Error while downloading file: '{file_path}'. It is already exists.")
+            raise NcoreDownloadError(
+                f"Error while downloading file: '{file_path}'. It is already exists.")
         with open(file_path, 'wb') as fh:
             fh.write(content.content)
         return file_path
