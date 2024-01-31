@@ -4,6 +4,7 @@ import os
 import functools
 import httpx
 from ncoreparser.data import (
+    SearchResults,
     URLs,
     SearchParamType,
     SearchParamWhere,
@@ -66,7 +67,7 @@ class AsyncClient:
     @_check_login
     # pylint: disable=too-many-arguments
     async def search(self, pattern, type=SearchParamType.ALL_OWN, where=SearchParamWhere.NAME,
-               sort_by=ParamSort.UPLOAD, sort_order=ParamSeq.DECREASING, page_start=1, page_end=1) -> list[Torrent]:
+               sort_by=ParamSort.UPLOAD, sort_order=ParamSeq.DECREASING, page_start=1, page_end=1) -> SearchResults:
         torrents = []
         for page_count in range(page_start, page_end + 1):
             url = URLs.DOWNLOAD_PATTERN.value.format(page=page_count,
@@ -81,7 +82,9 @@ class AsyncClient:
                 raise NcoreConnectionError(f"Error while searhing torrents. {e}") from e
             new_torrents = [Torrent(**params) for params in self._page_parser.get_items(request.text)]
             torrents.extend(new_torrents)
-        return torrents
+        
+        pages = self._page_parser.get_pages(request.text)
+        return SearchResults(torrents, pages)
 
     @_check_login
     async def get_torrent(self, id, **ext_params):
