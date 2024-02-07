@@ -49,14 +49,14 @@ class TorrentsPageParser:
             
     def get_pages(self, data) -> int:
         current_page = self.current_page_pattern.search(data)
-        page_links = self.page_links_pattern.findall(data)
+        page_links = [int(x) for x in self.page_links_pattern.findall(data)]
 
         pages = 0
         if current_page:
             current_page = int(current_page.group(1))
             pages = math.ceil(current_page / 25)
         if page_links:
-            page_link_max = int(max(page_links))
+            page_link_max = max(page_links)
             pages = max(pages, page_link_max)
         return pages
 
