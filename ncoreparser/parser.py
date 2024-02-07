@@ -1,5 +1,6 @@
 import re
 import datetime
+import math
 from ncoreparser.error import NcoreParserError
 from ncoreparser.util import parse_datetime, Size
 from ncoreparser.data import SearchParamType, get_detailed_param
@@ -15,7 +16,7 @@ class TorrentsPageParser:
         self.not_found_pattern = re.compile(r'<div class="lista_mini_error">Nincs találat!</div>')
         self.seeders_pattern = re.compile(r'<div class="box_s2"><a class="torrent" href=".*">([0-9]+)</a></div>')
         self.leechers_pattern = re.compile(r'<div class="box_l2"><a class="torrent" href=".*">([0-9]+)</a></div>')
-        self.first_page_pattern = re.compile(r'<span class="active_link"><strong>.*?</strong></span>')
+        self.current_page_pattern = re.compile(r'<span class="active_link"><strong>(\d+).*?</strong></span>')
         self.page_links_pattern = re.compile( r'<a .*?href="/torrents.php\?oldal=(\d+).*?><strong>.*?</strong></a>')
 
     @staticmethod
@@ -47,14 +48,17 @@ class TorrentsPageParser:
                 raise NcoreParserError(f"Error while parse download items in {self.__class__.__name__}.")
             
     def get_pages(self, data) -> int:
-        first_page = self.first_page_pattern.search(data)
+        current_page = self.current_page_pattern.search(data)
         page_links = self.page_links_pattern.findall(data)
 
+        pages = 0
+        if current_page:
+            current_page = int(current_page.group(1))
+            pages = math.ceil(current_page / 25)
         if page_links:
-            return max(page_links)
-        elif first_page:
-            return 1
-        return 0
+            page_link_max = int(max(page_links))
+            pages = max(pages, page_link_max)
+        return pages
 
 
 class TorrenDetailParser:
